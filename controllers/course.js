@@ -72,24 +72,60 @@ const getCourse = async function (req, res, next) {
 
 const addCourse = async function(req, res, next) {
     try {
-        const course = await model.Course.create({
-            name: req.body.name,
-            rank: req.body.rank,
-        });        
+        const {time, weapon_name, weapon_type, instructorId, course_detail} = req.body
+        const date = new Date(req.body.date);
 
-        if (course) {
-            res.status(201).json({
-                'success': true,
-                'message': 'Successfully create course',
-                'data': course,
-            })
-        } else {
-            res.status(500).json({
+        console.log(time, weapon_name, weapon_type, instructorId, course_detail)
+
+        if (time && date && weapon_name && weapon_type && instructorId && course_detail)
+        {
+            const course = await model.Course.create({
+                time,
+                date,
+                weapon_name,
+                weapon_type,
+                instructorId
+            });
+
+            await Promise.all(course_detail.map(async(detail) => {
+                await model.CourseDetail.create({
+                        courseId: course.id,
+                        ...detail
+                });    
+            }));
+
+            const data = await model.Course.findByPk(course.id, {
+                include: [{
+                    model: model.Instructor,
+                    as: 'instructor'
+                },{
+                    model: model.CourseDetail,
+                    as: 'course_detail'
+                }]
+            });
+            if (data) {
+                res.status(201).json({
+                    'success': true,
+                    'message': 'Successfully create course',
+                    'data': data,
+                })
+            } else {
+                res.status(500).json({
+                    'success': false,
+                    'error': {
+                        'message': 'Server error',
+                    }
+                })    
+            }    
+        }
+        else
+        {
+            res.status(400).json({
                 'success': false,
                 'error': {
-                    'message': 'Server error',
+                    'messages': 'date,time,weapon_name,weapon_type,instructorId,course_detail is required',
                 }
-            })    
+            })            
         }
     } catch (err) {
         res.status(400).json({

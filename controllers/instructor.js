@@ -56,24 +56,37 @@ const getInstructor = async function (req, res, next) {
 
 const addInstructor = async function(req, res, next) {
     try {
-        const instructor = await model.Instructor.create({
-            name: req.body.name,
-            rank: req.body.rank,
-        });        
+        const {name, rank} = req.body
 
-        if (instructor) {
-            res.status(201).json({
-                'success': true,
-                'message': 'Successfully create instructor',
-                'data': instructor,
-            })
-        } else {
-            res.status(500).json({
+        if(name && rank){
+            const instructor = await model.Instructor.create({
+                name: req.body.name,
+                rank: req.body.rank,
+            });        
+    
+            if (instructor) {
+                res.status(201).json({
+                    'success': true,
+                    'message': 'Successfully create instructor',
+                    'data': instructor,
+                })
+            } else {
+                res.status(500).json({
+                    'success': false,
+                    'error': {
+                        'message': 'Server error',
+                    }
+                })    
+            }    
+        }
+        else
+        {
+            res.status(400).json({
                 'success': false,
                 'error': {
-                    'message': 'Server error',
+                    'message': 'Name and rank is required',
                 }
-            })    
+            })            
         }
     } catch (err) {
         res.status(400).json({
