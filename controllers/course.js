@@ -75,8 +75,6 @@ const addCourse = async function(req, res, next) {
         const {time, weapon_name, weapon_type, instructorId, course_detail} = req.body
         const date = new Date(req.body.date);
 
-        console.log(time, weapon_name, weapon_type, instructorId, course_detail)
-
         if (time && date && weapon_name && weapon_type && instructorId && course_detail)
         {
             const course = await model.Course.create({
@@ -87,6 +85,7 @@ const addCourse = async function(req, res, next) {
                 instructorId
             });
 
+            course_detail.sort((a, b) => b.score - a.score);
             await Promise.all(course_detail.map(async(detail) => {
                 await model.CourseDetail.create({
                         courseId: course.id,
