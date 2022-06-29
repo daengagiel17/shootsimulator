@@ -12,6 +12,7 @@ const getCourses = async function (req, res, next) {
             }]
         });
         if (courses.length !== 0) {
+            courses.sort((a,b) => b.id - a.id);
             res.status(200).json({
                 'success': true,
                 'message': null,
@@ -206,10 +207,51 @@ const removeCourse = async function(req, res, next) {
     }
 }
 
+const updateCourseDetail = async function(req, res, next) {
+    try {
+        const {id} = req.params;
+        const {round_fired, hits, misses, score, result} = req.body;
+
+        const courseDetail = await model.CourseDetail.findByPk(id);
+
+        if (courseDetail) {
+            courseDetail.set({
+                round_fired,
+                hits,
+                misses,
+                score,
+                result
+            })
+            courseDetail.save()
+
+            res.json({
+                'success': true,
+                'messages': 'Successfully updated',
+                'data': courseDetail,
+            })
+        }else{
+            res.status(500).json({
+                'success': false,
+                'error': {
+                    'messages': 'Server error',
+                }
+            })    
+        }
+    } catch (err) {
+        res.status(400).json({
+            'success': false,
+            'error': {
+                'messages': err.message,
+            }
+        })
+    }
+}
+
 module.exports = { 
     getCourses,
     getCourse,
     addCourse,
     updateCourse,
-    removeCourse
+    removeCourse,
+    updateCourseDetail
 }

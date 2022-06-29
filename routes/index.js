@@ -10,6 +10,9 @@ routes.use('/instructor', instructor);
 const course = require('./course');
 routes.use('/course', course);
 
+const courseDetail = require('./course_detail');
+routes.use('/course-detail', courseDetail);
+
 const task = require('./task');
 routes.use('/task', task);
 
